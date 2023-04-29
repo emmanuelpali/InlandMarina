@@ -5,6 +5,7 @@ namespace InlandMarina.Models
 {
     public class Dock
     {
+        // EF will instruct the database to automatically generate value for the Slip ID
         public int ID { get; set; }
 
         [Required]

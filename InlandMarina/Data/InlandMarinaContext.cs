@@ -16,13 +16,13 @@ namespace InlandMarina.Data
         public DbSet<Slip> Slips { get; set; }
         public DbSet<Lease> Leases { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            //Change the connection string here for your home computer/lab computer
-            optionsBuilder.UseSqlServer(@"Server=localhost\sqlexpress;
-                                          Database=InlandMarina;
-                                          Trusted_Connection=True;");
-        }
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //   // Change the connection string here for your home computer / lab computer
+        //    optionsBuilder.UseSqlServer(@"Server=localhost\\sqlexpress;
+        //                                  Database=InlandMarina;
+        //                                  Trusted_Connection=True;");
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,9 +30,15 @@ namespace InlandMarina.Data
 
             //seed data created here
             modelBuilder.Entity<Customer>().HasData(
-                new Customer { ID = 1, FirstName = "John", LastName = "Doe", Phone = "265-555-1212", City = "Phoenix" },
-                new Customer { ID = 2, FirstName = "Sara", LastName = "Williams", Phone = "403-555-9585", City = "Calgary" },
-                new Customer { ID = 3, FirstName = "Ken", LastName = "Wong", Phone = "802-555-3214", City = "Kansas City" }
+                new Customer { ID = 1, FirstName = "John", LastName = "Doe", Phone = "265-555-1212", City = "Phoenix", 
+                             Username = "jdoe", Password = "password"
+                             },
+                new Customer { ID = 2, FirstName = "Sara", LastName = "Williams", Phone = "403-555-9585", City = "Calgary",
+                                Username = "swilliams", Password = "password"
+                             },
+                new Customer { ID = 3, FirstName = "Ken", LastName = "Wong", Phone = "802-555-3214", City = "Kansas City",
+                              Username="kwong",  Password = "password"
+                            }
             );
 
             modelBuilder.Entity<Dock>().HasData(

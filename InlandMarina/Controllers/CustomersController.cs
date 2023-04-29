@@ -1,163 +1,100 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using InlandMarina.Data;
+using InlandMarina.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using InlandMarina.Data;
-using InlandMarina.Models;
 
 namespace InlandMarina.Controllers
 {
+    [Authorize]
     public class CustomersController : Controller
     {
-        private readonly InlandMarinaContext _context;
+        
+        private readonly InlandMarinaContext _context; // database context for inlandMarina
 
+        // context gets  injected to the constructor
         public CustomersController(InlandMarinaContext context)
         {
             _context = context;
         }
-
-        // GET: Customers
-        public async Task<IActionResult> Index()
+        // GET: CustomerController
+        public ActionResult Index()
         {
-              return _context.Customers != null ? 
-                          View(await _context.Customers.ToListAsync()) :
-                          Problem("Entity set 'InlandMarinaContext.Customers'  is null.");
-        }
-
-        // GET: Customers/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Customers == null)
-            {
-                return NotFound();
-            }
-
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
+            Customer customer = CustomerManager.FindCustomer(User.Identity.Name, _context);
+            ViewBag.CustomerData = new List<Lease>(customer.Leases.ToList());
             return View(customer);
         }
 
-        // GET: Customers/Create
-        public IActionResult Create()
+
+       
+        // GET: CustomerController/Details/5
+        public ActionResult Details(int id)
+        {
+            return View();
+        }
+        [AllowAnonymous]
+        // GET: CustomerController/Create
+        public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Customers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: CustomerController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,Phone,City")] Customer customer)
+        public ActionResult Create(IFormCollection collection)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(customer);
-                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            catch
+            {
+                return View();
+            }
         }
 
-        // GET: Customers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: CustomerController/Edit/5
+        public ActionResult Edit(int id)
         {
-            if (id == null || _context.Customers == null)
-            {
-                return NotFound();
-            }
-
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-            return View(customer);
+            return View();
         }
 
-        // POST: Customers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: CustomerController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,FirstName,LastName,Phone,City")] Customer customer)
+        public ActionResult Edit(int id, IFormCollection collection)
         {
-            if (id != customer.ID)
+            try
             {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(customer);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CustomerExists(customer.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            catch
+            {
+                return View();
+            }
         }
 
-        // GET: Customers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: CustomerController/Delete/5
+        public ActionResult Delete(int id)
         {
-            if (id == null || _context.Customers == null)
-            {
-                return NotFound();
-            }
-
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            return View(customer);
+            return View();
         }
 
-        // POST: Customers/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: CustomerController/Delete/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public ActionResult Delete(int id, IFormCollection collection)
         {
-            if (_context.Customers == null)
+            try
             {
-                return Problem("Entity set 'InlandMarinaContext.Customers'  is null.");
+                return RedirectToAction(nameof(Index));
             }
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer != null)
+            catch
             {
-                _context.Customers.Remove(customer);
+                return View();
             }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool CustomerExists(int id)
-        {
-          return (_context.Customers?.Any(e => e.ID == id)).GetValueOrDefault();
         }
     }
 }

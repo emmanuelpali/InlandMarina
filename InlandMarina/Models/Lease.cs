@@ -1,8 +1,11 @@
-﻿namespace InlandMarina.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace InlandMarina.Models
 {
     public class Lease
     {
         public int ID { get; set; }
+        [Display(Name = "Slip ID")]
         public int SlipID { get; set; }
         public int CustomerID { get; set; }
 

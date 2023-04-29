@@ -26,6 +26,17 @@ namespace InlandMarina.Controllers
             return View(await inlandMarinaContext.ToListAsync());
         }
 
+        //Ger customer leases
+        public ActionResult MyLeases()
+        {
+            if(User.Identity.Name != null)
+            {
+                List<Lease> cusLeases = LeaseManager.GetCustomerLeases(_context, User.Identity.Name);
+                return View(cusLeases);
+            }
+            return View("Login", "Account");
+        }
+
         // GET: Leases/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -47,10 +58,12 @@ namespace InlandMarina.Controllers
         }
 
         // GET: Leases/Create
-        public IActionResult Create()
+        public IActionResult Create(int slipId, string customerId)
         {
-            ViewData["CustomerID"] = new SelectList(_context.Customers, "ID", "City");
-            ViewData["SlipID"] = new SelectList(_context.Slips, "ID", "ID");
+
+            int custId = CustomerManager.FindCustomer(customerId, _context).ID;
+            ViewData["CustomerID"] = custId;
+            ViewData["SlipID"] = slipId;
             return View();
         }
 
@@ -65,11 +78,9 @@ namespace InlandMarina.Controllers
             {
                 _context.Add(lease);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Myleases");
             }
-            ViewData["CustomerID"] = new SelectList(_context.Customers, "ID", "City", lease.CustomerID);
-            ViewData["SlipID"] = new SelectList(_context.Slips, "ID", "ID", lease.SlipID);
-            return View(lease);
+            return View("index", "Customers");
         }
 
         // GET: Leases/Edit/5
@@ -161,14 +172,14 @@ namespace InlandMarina.Controllers
             {
                 _context.Leases.Remove(lease);
             }
-            
+
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("MyLeases");
         }
 
         private bool LeaseExists(int id)
         {
-          return (_context.Leases?.Any(e => e.ID == id)).GetValueOrDefault();
+            return (_context.Leases?.Any(e => e.ID == id)).GetValueOrDefault();
         }
     }
 }
