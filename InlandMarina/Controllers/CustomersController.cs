@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Data;
 
 namespace InlandMarina.Controllers
 {
@@ -39,20 +40,26 @@ namespace InlandMarina.Controllers
         {
             return View();
         }
-
+        [AllowAnonymous]
         // POST: CustomerController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,Phone,City,Username,Password")] Customer customer)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(customer);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
-            catch
+            catch (DataException)
             {
-                return View();
+                ModelState.AddModelError("", "Unable to add Customer");
             }
+            return View(customer);
         }
 
         // GET: CustomerController/Edit/5
